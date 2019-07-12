@@ -5,13 +5,13 @@ This directory describes the 12 sessions planned for the 2020 seminar for MA stu
 UE5 12 x 1, 5h R for digital humanities 
 
 
-This module provides an initiation to the R programming language with the RStudio environment. A learning-by-doing approach will be followed to help students load, visualise and analyse their data, whether images, novels, corpora, FACTIVA data.
+The programming language R has been adopted by many research communities for Digital Humanities. This module provides an initiation to the R programming language with the RStudio environment, whether for literature, linguistics, (automatic) translation, (quantitative) history or visual arts. A learning-by-doing approach will be followed to help students load, visualise and analyse their data, whether images, novels, corpora, FACTIVA data.
 The assessment will consist in writing/adapating a script addressing a specific research question in humanities and propose a critical analysis as to the method(s) or the package(s) used.
 Some basic scripts for quantitative analysis, graph analysis and will be detailed, using Arnold and Tilton 2012 textbook. The concept of package will be presented, detailing case studies for image analysis or data classification, machine translation. 
 Some basic notions will be explained (algorithm, clustering, classification, training set and test set).
 
 
-Arnold, T., & Tilton, L. (2015). Humanities data in R: exploring networks, geospatial data, images, and text. Springer.
+Arnold, T., & Tilton, L. (2015). *Humanities data in R: exploring networks, geospatial data, images, and text.* Springer.
 https://humanitiesdata.org/
 
 
