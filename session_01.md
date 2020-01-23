@@ -1,9 +1,9 @@
-** SESSION 01**
+**SESSION 01**
 
-** PAIR WORK**
+**PAIR WORK**
 Cross presentation
 Expectations for this class
-Research project, computing skills and use of a programming language ??
+Research project, computing skills and use of a programming language ?? </br>
 Digital Humanities
 
 **References**:  
