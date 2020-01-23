@@ -7,8 +7,8 @@ Research project, computing skills and use of a programming language ??
 Digital Humanities
 
 **References**:  
-Alcantara et al. (2018) *Big data et visibilité en ligne. Un enjeu pluridisciplinaire de l'économie en ligne*, [Presses des Mines](https://www.pressesdesmines.com/produit/big-data-et-visibilite-en-ligne/).  
 [Julia Silge and David Robinson (2017) *Text mining with R*, O'Reilly.](https://www.tidytextmining.com/)  
+
 
 
 **R and Rstudio**  
