@@ -3,12 +3,16 @@
 
 ###Visual studies and neural networks###  
 
-https://www.lyrn.ai/2018/12/26/a-style-based-generator-architecture-for-generative-adversarial-networks/ \\
-various networks \\
-https://thispersondoesnotexist.com/ \\
-This cat does not exist \\
+https://www.lyrn.ai/2018/12/26/a-style-based-generator-architecture-for-generative-adversarial-networks/ </br>
+various networks </br>
+https://thispersondoesnotexist.com/ </br>
+This cat does not exist </br>
 
 
-TIDYR : easier data wrangling with R \\
+TIDYR : easier data wrangling with R </br>
 https://garrettgman.github.io/tidying/
 
+
+vowel trajectories </br>
+http://joeystanley.com/blog/reshaping-vowel-formant-data-with-tidyr </br>
+http://joeystanley.com/blog/making-vowel-plots-in-r-part-2 </br>
