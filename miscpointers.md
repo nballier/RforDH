@@ -16,3 +16,7 @@ https://garrettgman.github.io/tidying/
 vowel trajectories </br>
 http://joeystanley.com/blog/reshaping-vowel-formant-data-with-tidyr </br>
 http://joeystanley.com/blog/making-vowel-plots-in-r-part-2 </br>
+
+
+DH </br>
+https://researchguides.library.tufts.edu/c.php?g=769182&p=5560777
