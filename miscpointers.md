@@ -20,3 +20,11 @@ http://joeystanley.com/blog/making-vowel-plots-in-r-part-2 </br>
 
 DH </br>
 https://researchguides.library.tufts.edu/c.php?g=769182&p=5560777
+
+
+RforDH: </br>
+the datasets that made a difference </br>
+http://www.image-net.org/ </br>
+the iris datasets and classification issues </br>
+
+
