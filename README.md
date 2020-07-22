@@ -1,4 +1,5 @@
 # RforDH
+
 M1 seminar outline 
 This directory describes the 12 sessions planned for the 2020 seminar for MA students (master d'études anglophones). The aim is to showcase the benefits of a programming language like R for a range of possible research question in Anglistik (ie English studies).
 
@@ -24,7 +25,7 @@ https://humanitiesdata.org/
 6. Literature 2: text mining approaches : Silke and Robinson
 7. Linguists : R for PoS annotation
 8. Translators: Fasttext for automatic translation
-9. Translators : an inittiation to keras and neural networks for neural machine translation
+9. Translators : an initiation to keras and neural networks for neural machine translation
 10. Linguists : R for parsing (R and python): SpaCy 
 11. Students' presentations 
 12. IA and all that : data, metadata, algorithms, ethics, paradigm shifting
