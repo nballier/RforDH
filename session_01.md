@@ -6,9 +6,9 @@ Expectations for this class
 Research project, computing skills and use of a programming language ?? </br>
 Digital Humanities
 
+
 **References**:  
 [Julia Silge and David Robinson (2017) *Text mining with R*, O'Reilly.](https://www.tidytextmining.com/)  
-
 
 
 **R and Rstudio**  
@@ -24,8 +24,8 @@ selecting variables with R, basic data wrangling
 basic data visualisation ([dataViz](https://www.r-graph-gallery.com/)), basic plots  
 
 
-** Digital Humanities** 
-o	NB: sentiment analysis for beginners : the basics  
+**Digital Humanities** 
+NB: sentiment analysis for beginners : the basics  
 [on-the-fly NLP analysis](http://corenlp.run/)  
 [The NLP Tools for the Social Sciences](https://www.linguisticanalysistools.org/)  
 
