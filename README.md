@@ -32,3 +32,6 @@ https://humanitiesdata.org/
 
 
 
+PAD to share pieces of code:
+https://mypads2.framapad.org/mypads/?/mypads/group/rfordh-1ctk09k9/pad/view/r-code-uxtl09bb
+
