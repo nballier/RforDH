@@ -8,17 +8,6 @@ rm(list=ls())
 rm(list = ls(all.names = TRUE))
 reticulate::repl_python()
 
-# get the file online
-temp <- tempfile()
-download.file("https://www.manythings.org/anki/fra-eng.zip",temp)
-data <- read.table(unz(temp, "fra.txt"))
-unlink(temp)
-
-
-
-model
-model$ouputs
-
 # https://github.com/PacktPublishing/Deep-Learning-with-R-Cookbook/blob/master/Chapter07/Neural%20machine%20translation.ipynb
 
 # https://www.packtpub.com/product/deep-learning-with-r-cookbook/9781789805673
@@ -62,33 +51,27 @@ sessionInfo()
 
 ```
 
-
-# with French-English data 
-
-setwd("C:/Users/Utilisateur/Desktop/RforDH-Keras/Word-basedNMT")
+#setwd("C:/Users/Utilisateur/Desktop/RforDH-Keras/Word-basedNMT")
 #  source("/Volumes/Transcend3/RforDH-Keras/Word-basedNMT/scriptWord.R")
 
 
 
-
-setwd("C:/Users/Utilisateur/Desktop")
-install.packages("keras")
-install.packages("tensorflow")
-library(tensorflow)
 
 # In https://github.com/rstudio/keras/issues/298 I found a similar symptom, and there J.J. Allaire gave the fix, which also helped my case:
 #    restarting your R session will clear the error
 
 
 ```{r}
+# MAKE SURE YOU INSTALL "tensorflow 2.2.1" or earlier, do not use the current version 
+install_tensorflow(version = "2.0.0")
+#install_tensorflow(version = "2.2.1")
 library(tensorflow)
-#install_tensorflow(version = "2.0.0")
-install_tensorflow(version = "2.2.1")
-
 
 
 # loading the required libraries
+# install.packages("keras")
 library(keras)
+#install.packages("stringr")
 library(stringr)
 #install.packages("reshape2")
 library(reshape2)
@@ -96,6 +79,7 @@ library(purrr)
 library(ggplot2)
 #install.packages("readr")
 library(readr)
+#install.packages("stringi"
 library(stringi)
 ```
 
@@ -108,8 +92,24 @@ http://tatoeba.org/files/downloads/sentences_detailed.csv
 
 
 # to load your own dataset
+# get the text files online
+temp <- tempfile()
+download.file("https://www.manythings.org/anki/fra-eng.zip",temp)
+data <- read.table(unz(temp, "fra.txt"))
+unlink(temp)
+
+
+
+# lines <- readLines("/MYPATH/fra.txt", n = 10000)
 
 lines <- readLines("/Users/nballier/Desktop/MT/COMPUTING/R-keras/fra-eng/fra.txt", n = 10000)
+
+
+# get around: use file.choose() 
+lines <- readLines(file.choose())
+
+
+
 # check what you got
 head(lines,4)
 class(lines)
@@ -315,7 +315,7 @@ py_get_attr_impl(x, name, silent)
 
 
 ```{r}
-# predicting for test data ## predicting means translating
+# predicting for test data ## predicting means translating ## you might experience issues here 
 predicted <- model %>% predict_classes(x_test)
 ```
 
