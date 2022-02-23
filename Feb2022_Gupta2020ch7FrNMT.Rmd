@@ -1,0 +1,422 @@
+---
+title: An R Markdown document converted from "https://github.com/PacktPublishing/Deep-Learning-with-R-Cookbook/blob/master/Chapter07/Neural%20machine%20translation.ipynb"
+output: html_document
+---
+
+
+rm(list=ls())
+rm(list = ls(all.names = TRUE))
+reticulate::repl_python()
+
+# get the file online
+temp <- tempfile()
+download.file("https://www.manythings.org/anki/fra-eng.zip",temp)
+data <- read.table(unz(temp, "fra.txt"))
+unlink(temp)
+
+
+
+model
+model$ouputs
+
+# https://github.com/PacktPublishing/Deep-Learning-with-R-Cookbook/blob/master/Chapter07/Neural%20machine%20translation.ipynb
+
+# https://www.packtpub.com/product/deep-learning-with-r-cookbook/9781789805673
+
+# adapetd to use French / English data from Tatoaba http://www.manythings.org/anki/fra-eng.zip
+
+# Adapted from the jupyter notebook to Rmd  
+https://rmarkdown.rstudio.com/docs/reference/convert_ipynb.html
+# with French-English data 
+
+
+# Adapted from the jupyter notebook to Rmd 
+# ipynb to Rmd ------
+# https://rmarkdown.rstudio.com/docs/reference/convert_ipynb.html
+# convert to R Markdown
+nb_rmd <- rmarkdown:::convert_ipynb(nb_file)
+xfun::file_string(nb_rmd)
+
+#Arguments
+input	<- '/Users/nballier/Desktop/Gupta2020ch7NMT.ipynb' # Path to the input ‘.ipynb’ file.
+
+#nb_rmd <- rmarkdown:::convert_ipynb(input, output = xfun::with_ext(input, "Rmd"))
+nb_rmd <- rmarkdown:::convert_ipynb(Gupta2020ch7NMT.ipynb)
+
+xfun::file_string(nb_rmd) # show file content
+
+?convert_ipynb
+
+xfun::file_string(nb_file)  
+
+nb_rmd <- rmarkdown:::convert_ipynb(Gupta2020ch7NMT.ipynb)
+xfun::file_string(nb_rmd) # show file content
+
+
+# standard questions to chechk your environment (dialogue with python can be tricky)
+```{r}
+print(.libPaths())
+print(sessionInfo())
+print(version)
+sessionInfo()
+
+```
+
+
+# with French-English data 
+
+setwd("C:/Users/Utilisateur/Desktop/RforDH-Keras/Word-basedNMT")
+#  source("/Volumes/Transcend3/RforDH-Keras/Word-basedNMT/scriptWord.R")
+
+
+
+
+setwd("C:/Users/Utilisateur/Desktop")
+install.packages("keras")
+install.packages("tensorflow")
+library(tensorflow)
+
+# In https://github.com/rstudio/keras/issues/298 I found a similar symptom, and there J.J. Allaire gave the fix, which also helped my case:
+#    restarting your R session will clear the error
+
+
+```{r}
+library(tensorflow)
+#install_tensorflow(version = "2.0.0")
+install_tensorflow(version = "2.2.1")
+
+
+
+# loading the required libraries
+library(keras)
+library(stringr)
+#install.packages("reshape2")
+library(reshape2)
+library(purrr)
+library(ggplot2)
+#install.packages("readr")
+library(readr)
+library(stringi)
+```
+
+# to find your couple of languages  http://www.manythings.org/anki/
+# Date of this file:
+# 2020-06-28
+
+# This data is from the sentences_detailed.csv file from tatoeba.org.
+http://tatoeba.org/files/downloads/sentences_detailed.csv
+
+
+# to load your own dataset
+
+lines <- readLines("/Users/nballier/Desktop/MT/COMPUTING/R-keras/fra-eng/fra.txt", n = 10000)
+# check what you got
+head(lines,4)
+class(lines)
+
+```{r}
+# loading the first 10000 phrases from the data;this will be our input data
+# lines <- readLines("C:\\Users\\Utilisateur\\Desktop\\fra.txt", n = 10000)
+lines <- readLines("/Users/nballier/Desktop/MT/COMPUTING/R-keras/fra-eng/fra.txt", n = 10000) # http://www.manythings.org/anki/
+sentences <- str_split(lines, "\t")  # = loads the file with tabs as a sep
+sentences[1:10]
+```
+
+
+
+```{r}
+#  cleaning the input data 
+data_cleaning <- function(sentence) {
+  sentence <- gsub('[[:punct:] ]+',' ',sentence) # to replace strings of characters
+  sentence <- gsub("[^[:alnum:]\\-\\.\\s]", " ", sentence)   #
+  sentence <- stringi::stri_trans_general(sentence, "latin-ascii") # 
+  sentence <- tolower(sentence) # to lowercase
+#   sentence = paste0("<start> ", sentence, " <stop>")
+  sentence
+}
+
+
+sentences <- map(sentences,data_cleaning)
+```
+
+
+```{r}
+# capturing the maximum length of statements in English and French 
+english_sentences <- list()  ## the output is going to be of the list type
+french_sentences <- list()
+
+for(i in 1:length(sentences)){
+    current_sentence <- sentences[i]%>%unlist()%>%str_split('\t')
+    english_sentences <- append(english_sentences,current_sentence[1])
+    french_sentences <- append(french_sentences,current_sentence[2])  
+}
+```
+
+
+```{r}
+# converting the data into a dataframe
+data <- do.call(rbind, Map(data.frame, "French"=french_sentences,"English"=english_sentences))
+head(data,10) # inspect first 10 lines
+```
+
+
+```{r}
+# checking the maximum number of words in all the sentences in French and English phrases
+french_length <- max(sapply(strsplit(as.character(data[,"French"] ), " "), length))
+print(paste0("Maximum length of a sentence in French data:",french_length))
+
+eng_length <- max(sapply(strsplit(as.character(data[,"English"] ), " "), length))
+print(paste0("Maximum length of a sentence in English data:",eng_length))
+```
+
+
+```{r}
+# defining a function for tokenization
+tokenization <- function(lines){
+    tokenizer = text_tokenizer()
+    tokenizer =  fit_text_tokenizer(tokenizer,lines)
+    return(tokenizer)
+}
+```
+
+
+# if the following code snippet does not run for tokenisation and tensorflow is required; installation takes a while
+```{r}
+# install.packages("tensorflow")
+# Then, use the install_tensorflow() function to install TensorFlow. Note that on Windows you need a working installation of Anaconda.
+
+#library(tensorflow)
+#install_tensorflow()
+```
+
+
+
+
+```{r}
+# preparing French tokenizer # takes some 30 s.
+french_tokenizer <- tokenization(data[,"French"])
+french_vocab_size <- length(french_tokenizer$word_index)  + 1
+
+print(paste0('French Vocabulary Size:',french_vocab_size))
+```
+
+
+```{r}
+# preparing English tokenizer
+eng_tokenizer <- tokenization(data[,"English"])
+eng_vocab_size <- length(eng_tokenizer$word_index) + 1
+
+print(paste0('English Vocabulary Size:',eng_vocab_size))
+```
+
+
+```{r}
+# function to encode and pad sequences
+encode_pad_sequences <- function(tokenizer, length, lines){
+    # Encoding text to integers
+    seq = texts_to_sequences(tokenizer,lines)
+    # Padding text to maximum length sentence
+    seq = pad_sequences(seq, maxlen=length, padding='post')
+    return(seq)
+}
+```
+
+
+```{r}
+# dividing the data into training and testing datasets 
+train_data <- data[1:9000,]
+test_data <- data[9001:10000,]
+```
+
+
+```{r}
+# preprocessing the training and testing data # takes 15 s.
+x_train <- encode_pad_sequences(french_tokenizer,french_length,train_data[,"French"])
+y_train <- encode_pad_sequences(eng_tokenizer,eng_length,train_data[,"English"])
+y_train <- to_categorical(y_train,num_classes = eng_vocab_size)
+
+x_test <- encode_pad_sequences(french_tokenizer,french_length,test_data[,"French"])
+y_test <- encode_pad_sequences(eng_tokenizer,eng_length,test_data[,"English"])
+y_test <- to_categorical(y_test,num_classes = eng_vocab_size)
+```
+
+
+```{r}
+# defining network parameters for model
+in_vocab <- french_vocab_size
+out_vocab <- eng_vocab_size
+in_timesteps <- french_length
+out_timesteps <- eng_length
+units <- 512 # = number of numbers used to represent  words with numbers (length of the vector) 
+epochs <- 70 # how mant times will the NN see the data
+batch_size = 200  # how many sentences at a time to be  learnt by the neural network
+```
+
+
+```{r}
+# building model
+model <- keras_model_sequential()
+model %>%
+    layer_embedding(in_vocab,units, input_length=in_timesteps, mask_zero=TRUE) %>%
+    layer_lstm(units = units) %>%
+    layer_repeat_vector(out_timesteps)%>%
+    layer_lstm(units,return_sequences = TRUE)%>%
+    time_distributed(layer_dense(units = out_vocab, activation='softmax'))
+
+# summary of the model
+summary(model)
+```
+
+## Note that ?compile does not list the options of the optimiser, which would be SGD, RMSprop, Adam, Adadelta, Adagrad, Adamax, Nadam, Ftrl
+## there are other R packages to access keras with R , eg {KerasR}.
+
+
+```{r}
+# compiling the model
+model %>% compile(optimizer = "adam",loss = 'categorical_crossentropy')
+```
+
+
+```{r}
+# defining callbacks and checkpoints
+
+model_name <- "model_nmt"
+
+checkpoint_dir <- "checkpoints_nmt"
+dir.create(checkpoint_dir)
+filepath <- file.path(checkpoint_dir, paste0(model_name,"weights.{epoch:02d}-{val_loss:.2f}.hdf5",sep=""))
+
+cp_callback <- list(callback_model_checkpoint(mode = "min",
+ filepath = filepath,
+ save_best_only = TRUE,
+ verbose = 1))
+#  callback_early_stopping(patience = 100))
+```
+
+# here for 70 epochs 
+
+```{r}
+# training the model # adapted to measure the time it takes
+
+system.time(
+model %>% fit(x_train,y_train,epochs = epochs,batch_size = batch_size,validation_split = 0.2,callbacks = cp_callback,verbose = 2)
+)
+```
+
+class(model)
+summary(model)
+
+```{python}
+import tensorflow as tf
+from tensorflow import py_get_attr_impl
+py_get_attr_impl(x, name, silent)
+```
+
+
+
+```{r}
+# predicting for test data ## predicting means translating
+predicted <- model %>% predict_classes(x_test)
+```
+
+#Error in py_get_attr_impl(x, name, silent) : 
+#AttributeError: 'Sequential' object has no attribute
+# 'predict_classes'
+# Warning in predict_classes(., x_test) :
+#  `predict_classes()` is deprecated and and was removed #from tensorflow in version 2.6.
+#Please update your code:
+#  * If your model does multi-class classification:
+#    (e.g. if it uses a `softmax` last-layer activation).
+#
+#      model %>% predict(x) %>% k_argmax()
+#
+#  * if your model does binary classification
+#    (e.g. if it uses a `sigmoid` last-layer activation).
+#
+#      model %>% predict(x) %>% `>`(0.5) %>% 
+# k_cast("int32")
+#
+#Error in py_get_attr_impl(x, name, silent) : 
+#  AttributeError: 'Sequential' object has no attribute #'predict_classes'
+
+
+# This is what I tried
+predicted <-  model %>% predict(x_test) %>% k_argmax()
+head(predicted)
+
+predicted <-  model %>% predict(x_test) %>% k_argmax()
+head(predicted)
+
+# returns head(predicted) as well
+predicted <-   model %>% predict(x_test) %>% `>`(0.5) %>% 
+k_cast("int32")
+but returns 
+Warning in `[.tensorflow.tensor`(predicted, 41, ) :
+  Incorrect number of dimensions supplied. The number of supplied arguments, (not counting any NULL, tf$newaxis or np$newaxis) must match thenumber of dimensions in the tensor, unless an all_dims() was supplied (this will produce an error in the future)
+Error in word_index_dict[index] : invalid subscript type 'environment'
+
+```{r}
+# function to create a reversed list of key-value pair of the word index
+reverse_word_index <- function(tokenizer){
+    reverse_word_index <- names(tokenizer$word_index)
+    names(reverse_word_index) <- tokenizer$word_index
+    return(reverse_word_index)
+}
+
+french_reverse_word_index <-reverse_word_index(french_tokenizer)
+eng_reverse_word_index <- reverse_word_index(eng_tokenizer)
+```
+
+
+
+```{r}
+# decoding sample phrases from test data in French into English
+# index_to_word <- function(data_sample,word_index_dict){
+#    phrase = list()
+#    for(i in 1:length(data_sample)){
+#        index = data_sample[[i]]
+#        word = word_index_dict[index] 
+#         word = if(!is.null(word)) word else "?"
+#        phrase = paste0(phrase," ",word)
+# }
+#    return(phrase)
+
+#}
+
+
+## prettifies the output to present the data 
+#cat(paste0("The French sample phrase is -->",index_to_word(x_test[41,],french_reverse_word_index)))
+#cat('\n')
+#cat(paste0("The actual translation in English is -->",as.character(test_data[41,"English"])))
+#cat('\n')
+#cat(paste0("The predicted translation in English is -->",index_to_word(predicted[41,],eng_reverse_word_index)))
+```
+
+## save your model with all your environment
+save.image("~/Desktop/Model.RData")
+
+<!-- The French sample phrase is --> il possa de dix vaches          -->
+<!-- The actual translation in English is -->he has ten cows  -->
+<!-- The predicted translation in English is --> he went left   -->
+
+### ASSIGNMENT : 
+# change some parameters  (number of epochs?)
+# 
+# test optimisers
+
+
+### FURTHER READING
+# Exploring what is learnt in the early epochs:
+# Zimina et al. 2020
+
+
+# to learn more about loss (stop reading before the different ways to compute loss are explained)
+this blog : https://github.com/christianversloot/machine-learning-articles/blob/main/about-loss-and-loss-functions.md
+
+
+```{r}
+str(model)
+```
+
+model
+
