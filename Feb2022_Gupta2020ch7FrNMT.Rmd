@@ -248,7 +248,7 @@ out_vocab <- eng_vocab_size
 in_timesteps <- french_length
 out_timesteps <- eng_length
 units <- 512 # = number of numbers used to represent  words with numbers (length of the vector) 
-epochs <- 70 # how mant times will the NN see the data
+epochs <- 70 # how many times will the NN see the data
 batch_size = 200  # how many sentences at a time to be  learnt by the neural network
 ```
 
@@ -314,109 +314,87 @@ py_get_attr_impl(x, name, silent)
 
 
 
-```{r}
-# predicting for test data ## predicting means translating ## you might experience issues here 
-predicted <- model %>% predict_classes(x_test)
-```
 
-#Error in py_get_attr_impl(x, name, silent) : 
-#AttributeError: 'Sequential' object has no attribute
-# 'predict_classes'
-# Warning in predict_classes(., x_test) :
-#  `predict_classes()` is deprecated and and was removed #from tensorflow in version 2.6.
-#Please update your code:
-#  * If your model does multi-class classification:
-#    (e.g. if it uses a `softmax` last-layer activation).
-#
-#      model %>% predict(x) %>% k_argmax()
-#
-#  * if your model does binary classification
-#    (e.g. if it uses a `sigmoid` last-layer activation).
-#
-#      model %>% predict(x) %>% `>`(0.5) %>% 
-# k_cast("int32")
-#
-#Error in py_get_attr_impl(x, name, silent) : 
-#  AttributeError: 'Sequential' object has no attribute #'predict_classes'
+system.time(
+  model %>%
+    fit(
+      x_train,
+      y_train,
+      epochs = epochs,
+      batch_size = batch_size,
+      validation_split = 0.2,
+      callbacks = cp_callback,
+      verbose = 2)
+)
+# be patient !! 261 min, 4 hours 30 on my machine 
+#    user    system   elapsed 
+# 15670.315  1604.995  5303.841
 
 
-# This is what I tried
-predicted <-  model %>% predict(x_test) %>% k_argmax()
-head(predicted)
+# from here , this scripts departs from (Gupta, 2020) since `predict_classes()` is deprecated and and was removed #from tensorflow in version 2.6.
 
-predicted <-  model %>% predict(x_test) %>% k_argmax()
-head(predicted)
 
-# returns head(predicted) as well
-predicted <-   model %>% predict(x_test) %>% `>`(0.5) %>% 
-k_cast("int32")
-but returns 
-Warning in `[.tensorflow.tensor`(predicted, 41, ) :
-  Incorrect number of dimensions supplied. The number of supplied arguments, (not counting any NULL, tf$newaxis or np$newaxis) must match thenumber of dimensions in the tensor, unless an all_dims() was supplied (this will produce an error in the future)
-Error in word_index_dict[index] : invalid subscript type 'environment'
+predicted <- model %>% predict(x_test)
 
-```{r}
-# function to create a reversed list of key-value pair of the word index
-reverse_word_index <- function(tokenizer){
-    reverse_word_index <- names(tokenizer$word_index)
-    names(reverse_word_index) <- tokenizer$word_index
-    return(reverse_word_index)
+output <- matrix(NA_real_, ncol = dim(predicted)[2], nrow = nrow(predicted))
+for (j in seq_len(nrow(predicted)))
+{
+  output[j,] <- apply(predicted[j,,], 1, which.max) - 1L
 }
 
-french_reverse_word_index <-reverse_word_index(french_tokenizer)
-eng_reverse_word_index <- reverse_word_index(eng_tokenizer)
-```
+eng_vocab <- names(eng_tokenizer$word_index)
+french_vocab <- names(french_tokenizer$word_index)
+
+index_to_word <- function(data_sample, word_index_dict){
+   phrase = list()
+   for(i in 1:length(data_sample)){
+       index = data_sample[[i]]
+       word = word_index_dict[index]
+        word = if(!is.null(word)) word else "?"
+       phrase = paste0(phrase," ",word)
+   }
+   return(phrase)
+}
 
 
+index_to_word(x_test[41,], french_vocab) # [1] " nous sommes medecins         "
+index_to_word(y_test_raw[41,], eng_vocab) # [1] " we re doctors  "
+index_to_word(output[41,], eng_vocab) #  [1] " we re normal  "
 
-```{r}
-# decoding sample phrases from test data in French into English
-# index_to_word <- function(data_sample,word_index_dict){
-#    phrase = list()
-#    for(i in 1:length(data_sample)){
-#        index = data_sample[[i]]
-#        word = word_index_dict[index] 
-#         word = if(!is.null(word)) word else "?"
-#        phrase = paste0(phrase," ",word)
-# }
-#    return(phrase)
+#######
+new_sentence <- "Je vais"
+x_new <- encode_pad_sequences(french_tokenizer,french_length,new_sentence)
 
-#}
+predicted_new <- model %>% predict(x_new)
+output_new <- apply(predicted_new[1,,], 1, which.max) - 1L
+predicted_translation <- index_to_word(output_new, eng_vocab)
+predicted_translation
 
 
-## prettifies the output to present the data 
-#cat(paste0("The French sample phrase is -->",index_to_word(x_test[41,],french_reverse_word_index)))
-#cat('\n')
-#cat(paste0("The actual translation in English is -->",as.character(test_data[41,"English"])))
-#cat('\n')
-#cat(paste0("The predicted translation in English is -->",index_to_word(predicted[41,],eng_reverse_word_index)))
-```
+nouv.phrase <-  "They are doctors."
+x_nouv <- encode_pad_sequences(eng_tokenizer,eng_length,nouv.phrase)
+
+predicted_nouv <- model %>% predict(x_nouv)
+output_nouv <- apply(predicted_nouv[1,,], 1, which.max) - 1L
+predicted_traduction <- index_to_word(output_nouv, french_vocab)
+predicted_traduction
+
+
 
 ## save your model with all your environment
 save.image("~/Desktop/Model.RData")
 
-<!-- The French sample phrase is --> il possa de dix vaches          -->
-<!-- The actual translation in English is -->he has ten cows  -->
-<!-- The predicted translation in English is --> he went left   -->
 
 ### ASSIGNMENT : 
-# change some parameters  (number of epochs?)
-# 
+# change some parameters  (number of epochs?, size of the training data)
+# test sentences
 # test optimisers
-
 
 ### FURTHER READING
 # Exploring what is learnt in the early epochs:
 # Zimina et al. 2020
 
-
 # to learn more about loss (stop reading before the different ways to compute loss are explained)
 this blog : https://github.com/christianversloot/machine-learning-articles/blob/main/about-loss-and-loss-functions.md
 
-
-```{r}
-str(model)
-```
-
-model
 
