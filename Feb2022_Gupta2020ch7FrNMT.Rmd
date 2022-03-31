@@ -118,7 +118,7 @@ class(lines)
 # loading the first 10000 phrases from the data;this will be our input data
 # lines <- readLines("C:\\Users\\Utilisateur\\Desktop\\fra.txt", n = 10000)
 lines <- readLines("/Users/nballier/Desktop/MT/COMPUTING/R-keras/fra-eng/fra.txt", n = 10000) # http://www.manythings.org/anki/
-sentences <- str_split(lines, "\t")  # = loads the file with tabs as a sep
+sentences <- strsplit(lines, "\t")  # = loads the file with tabs as a sep
 sentences[1:10]
 ```
 
