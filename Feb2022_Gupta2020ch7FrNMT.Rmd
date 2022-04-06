@@ -358,7 +358,7 @@ index_to_word <- function(data_sample, word_index_dict){
 
 
 index_to_word(x_test[41,], french_vocab) # [1] " nous sommes medecins         "
-index_to_word(y_test_raw[41,], eng_vocab) # [1] " we re doctors  "
+index_to_word(y_test_raw[41,], eng_vocab) # [1] " we re doctors  "  # y_test_raw <- to be checked
 index_to_word(output[41,], eng_vocab) #  [1] " we re normal  "
 
 #######
